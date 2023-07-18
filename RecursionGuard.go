@@ -3,7 +3,6 @@ package gorecursionguard
 import (
 	"fmt"
 	"log"
-	"sync"
 )
 
 const RG_MSG = "recursionGuard: recursion detected"
@@ -19,8 +18,8 @@ const (
 )
 
 type RecursionGuard struct {
-	being_called       bool
-	mutex              *sync.Mutex
+	being_called bool
+	// mutex              *sync.Mutex
 	mode               RGMode
 	cb_if_being_called func(RGMode) RGMode
 }
@@ -32,15 +31,15 @@ func NewRecursionGuard(
 	cb_if_being_called func(RGMode) RGMode,
 ) *RecursionGuard {
 	self := new(RecursionGuard)
-	self.mutex = new(sync.Mutex)
+	// self.mutex = new(sync.Mutex)
 	self.mode = mode
 	self.cb_if_being_called = cb_if_being_called
 	return self
 }
 
 func (self *RecursionGuard) Do(fn func()) {
-	self.mutex.Lock()
-	defer self.mutex.Unlock()
+	// self.mutex.Lock()
+	// defer self.mutex.Unlock()
 
 	mode := self.mode
 
