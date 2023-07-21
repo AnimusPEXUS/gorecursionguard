@@ -29,7 +29,8 @@ type RecursionGuard struct {
 func NewRecursionGuard(
 	mode RGMode,
 
-	// if not nil called in case of recursive call detected, return forces mode change
+	// if not nil, then cb_if_being_called is called in case of recursive call detection,
+	// return forces mode change
 	cb_if_being_called func(RGMode) RGMode,
 ) *RecursionGuard {
 	self := new(RecursionGuard)
@@ -40,6 +41,12 @@ func NewRecursionGuard(
 }
 
 func (self *RecursionGuard) Do(fn func()) {
+
+	// NOTE: usual golang sync.Mutex can't be used here, as it's not reentrant
+	// 	@valyala
+	// https://github.com/golang/go/issues/24192#issuecomment-369606420
+	// rfyiamcool, reentrant locks usually mean bad code. See https://stackoverflow.com/a/14671462
+	// реентрант локи, наверное, дебилы придумали.. куда им до Санька go-программиста
 	self.mutex.Lock()
 	defer self.mutex.Unlock()
 
