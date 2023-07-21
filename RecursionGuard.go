@@ -12,11 +12,11 @@ const RG_MSG = "recursionGuard: recursion detected"
 type RGMode uint
 
 const (
-	Panic        RGMode = iota //panic()
-	LogPrint                   // log.Println + allow recursion
-	FmtPrint                   // fmt.Println + allow recursion
-	SilentReturn               // cancel recursion
-	SilentPass                 // allow recursion
+	RGM_Panic        RGMode = iota //panic()
+	RGM_LogPrint                   // log.Println + allow recursion
+	RGM_FmtPrint                   // fmt.Println + allow recursion
+	RGM_SilentReturn               // cancel recursion
+	RGM_SilentPass                 // allow recursion
 )
 
 type RecursionGuard struct {
@@ -57,18 +57,19 @@ func (self *RecursionGuard) Do(fn func()) {
 			mode = self.cb_if_being_called(self.mode)
 		}
 		switch mode {
-		case Panic:
+		case RGM_Panic:
 			panic(RG_MSG)
-		case FmtPrint:
+		case RGM_FmtPrint:
 			fmt.Println(RG_MSG)
-		case LogPrint:
+		case RGM_LogPrint:
 			log.Println(RG_MSG)
-		case SilentReturn:
+		case RGM_SilentReturn:
 			return
-		case SilentPass:
+		case RGM_SilentPass:
 			break
 		}
 	}
 	self.being_called = true
+	defer func() { self.being_called = false }()
 	fn()
 }
